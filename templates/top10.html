@@ -1,0 +1,207 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <script src='https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js'></script>
+        <!-- <script src="../../echarts/dist/echarts.js"></script> -->
+        <script src='../static/js/echarts-wordcloud.js'></script>
+        <script src="../static/js/jquery.js"></script>
+        <script src="../static/js/echarts.min.js"></script>
+        <link  rel="stylesheet" type="text/css" href="../static/css/paper.css" />
+    </head>
+    <body>
+        <style>
+            html, body{
+                width: 100%;
+                height: 100%;
+                margin: 0;
+            }
+        </style>
+        <div class="under" align="center">
+            <div class="top10">
+                <table>
+                    <thead>
+                        <th>热门领域TOP10</th>
+                        <th>名次</th>
+                        <th>操作</th>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <h2 id="title">热门领域热词统计</h2>
+            <div class="linecharbox" id="line">
+            </div>
+        </div>
+        <script>
+            var chart = echarts.init(document.getElementById('line'));
+            var option = {
+                // backgroundColor: '#fff',
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        lineStyle: {
+                            color: {
+                                type: 'linear',
+                                x: 0,
+                                y: 0,
+                                x2: 0,
+                                y2: 1,
+                                colorStops: [{
+                                    offset: 0,
+                                    color: 'rgba(0, 255, 233,0)'
+                                }, {
+                                    offset: 0.5,
+                                    color: 'rgba(255, 255, 255,1)',
+                                }, {
+                                    offset: 1,
+                                    color: 'rgba(0, 255, 233,0)'
+                                }],
+                                global: false
+                            }
+                        },
+                    },
+                },
+                xAxis: [{
+                    show: true,
+                    type: 'category',
+                    axisLine: {
+                        show: true
+                    },
+                    splitArea: {// show: true,
+                        color: '#f00',
+                        lineStyle: {
+                            color: '#f00'
+                        },
+                    },
+                    axisLabel: {
+                        color: '#f00'
+                    },
+                    splitLine: {
+                        show: false
+                    },
+                    boundaryGap: false,
+                    data: ['A', 'B', 'C', 'D', 'E', 'F'],
+
+                }],
+                grid: {
+                    x: '5%',
+                    y: '5%',
+                    x2: '5%',
+                    y2: '5%',
+                    borderWidth: 1
+                },
+                yAxis: [{
+                    type: 'value',
+                    splitNumber: 4,
+                    splitLine: {
+                        show: true,
+                        lineStyle: {
+                            color: 'rgba(255,255,255,0.1)'
+                        }
+                        },
+                    axisLine: {
+                        show: true,
+                    },
+                    axisLabel: {
+                        show: true,
+                        textStyle: {
+                            color: '#f00',
+                        },
+                    },
+                    axisTick: {
+                        show: false,
+                    },
+                }],
+                series: [{
+                    name: "领域论文",
+                    type: 'line',
+                    smooth: true, //是否平滑
+                    // showAllSymbol: false,
+                    symbol: 'circle',
+                    symbolSize: 2,
+                    lineStyle: {
+                    normal: {
+                    color: "#00b3f4",
+                    },
+                    },
+                    itemStyle: {
+                        color: "#00b3f4",
+                    },
+                    areaStyle: {
+                        normal: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                offset: 0,
+                                color: 'rgba(0,179,244,0.3)'
+                            },
+                                {
+                                    offset: 1,
+                                    color: 'rgba(0,179,244,0)'
+                                }
+                                ], false),
+                            shadowColor: 'rgba(0,179,244, 0.9)',
+                            shadowBlur: 20
+                        }
+                        },
+                    data: [502.84, 205.97, 332.79, 281.55, 398.35, 214.02, ]
+                },]
+            };
+            chart.setOption(option);
+            window.onresize = chart.resize;
+        </script>
+        <script>
+            function get_date_top(){
+                $.ajax({
+                    url: "/key_word_class",
+                    success: function (data) {
+                        option.xAxis[0].data=data.name;
+                        option.series[0].data=data.value;
+                        chart.setOption(option);
+                    },
+                    error: function (xhr, type, errorThrown) {
+                    }
+                })
+            }
+            function  get_top10(){
+                $.ajax({
+                    url: "/top_10",
+                    success: function (data) {
+                        $(".top10 tbody").empty();
+                        for (var i = 0; i < data.data.length; i++) {
+                            str=i+1+""
+                            appendHtmlBody = "<tr><td>"+data.data[i][0]+"</td><td>"+str+"</td><td><button type='button' onclick='get_class("+'"'+data.data[i][0]+'"'+")'>领域热词</button></td></tr>"
+                            $(".top10 tbody").append(appendHtmlBody);
+                        }
+                    },
+                    error: function (xhr, type, errorThrown) {
+                    }
+                })
+            }
+            function leave_out(str){
+                if(str.length>=30)
+                {
+                    str=str.substring(0,30)+"..."
+                }
+                return str
+            }
+            function get_class(str){
+                var title=document.getElementById("title")
+                $.ajax({
+                    url: "/top_10_class",
+                    data:{
+                        top_word:str
+                    },
+                    success: function (data) {
+                        title.innerHTML = str+"领域热词统计";
+                        option.xAxis[0].data=data.name;
+                        option.series[0].data=data.value;
+                        chart.setOption(option);
+                    },
+                    error: function (xhr, type, errorThrown) {
+                    }
+                })
+            }
+            get_date_top()
+            get_top10()
+        </script>
+    </body>
+</html>

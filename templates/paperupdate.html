@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link  rel="stylesheet" type="text/css" href="../static/css/paper.css" />
+</head>
+<script src="../static/js/jquery.js"></script>
+<body>
+    <div class="mainbox">
+        <div align="center">
+            <h1>{{ data[0] }}</h1>
+            <h4>{{ data[1] }}</h4>
+            <h5>来自：{{ data[2] }},{{ data[3] }}</h5>
+        </div>
+         摘要：</br>
+        <p>
+            {{ data[4] }}
+        </p>
+        </br>
+        关键词：{{ data[5] }}
+    </div>
+    <div align="center">
+        <button id="delete">删除</button>
+        <button id="update">修改</button>
+        <button id="add">添加</button>
+        <div id="title" d="{{data[0]}}" style="display:none"></div>
+    </div>
+    <script>
+        var title= document.getElementById('title').getAttribute('d');
+        var btn_delete=document.getElementById("delete");
+        btn_delete.onclick=function(){
+            var res=confirm("确定要删除吗？")
+            if(res==true){
+                 $.ajax({
+                     url: "/paper_delete",
+                     data:{
+                         title:title
+                     },
+                    success: function (data) {
+                         if(data.data==1){
+                             alert("删除成功！")
+                         }
+                         if(data.data==0){
+                             alert("删除失败！")
+                         }
+                    },
+                    error: function (xhr, type, errorThrown) {
+                    }
+                })
+            }
+        }
+        var btn_update=document.getElementById("update");
+        btn_update.onclick=function(){
+            window.open("/update_paper?title="+title,"_self")
+        }
+        var btn_add=document.getElementById("add");
+            btn_add.onclick=function(){
+                window.open("/update_paper?title=@","_self")
+        }
+    </script>
+</body>
+</html>

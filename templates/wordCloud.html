@@ -1,0 +1,225 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <script src='https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js'></script>
+        <!-- <script src="../../echarts/dist/echarts.js"></script> -->
+        <script src='../static/js/echarts-wordcloud.js'></script>
+        <script src="../static/js/jquery.js"></script>
+        <link  rel="stylesheet" type="text/css" href="../static/css/paper.css" />
+    </head>
+    <body>
+        <style>
+            html, body{
+                width: 100%;
+                height: 100%;
+                margin: 0;
+            }
+        </style>
+        <div class="box">
+            <div id='main' class="main"></div>
+            <div class="tablebox2" style="overflow:auto;">
+                <h1 align="center">热词统计</h1>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>名次</th>
+                            <th>热词</th>
+                            <th>热度</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <script>
+            $.ajax({
+                    url: "/word_cloud_date_list",
+                    success: function (data) {
+                        $(".tablebox2 tbody").empty();
+                        for (var i = 0; i < data.data.length; i++) {
+                            var Day = data.data[i][0].split(' ')
+                            str=i+1+""
+                            appendHtmlBody = "<tr><td>" +
+                                str+"</td><td>" + data.data[i][0]+"</td><td>" +
+                                 data.data[i][1]+ "</td></tr>"
+                            $(".tablebox2 tbody").append(appendHtmlBody);
+                        }
+                        $(".tablebox2 tbody").find('tr').on('mouseenter',function(){
+                            var hang = $(this).prevAll().length
+                            $(".tablebox2 tbody tr").eq(hang).addClass('highTr');
+                            chart.dispatchAction({ type: 'showTip',seriesIndex: 0, name:data.data[hang][0]});
+                            //选中高亮
+                        })
+                        // 鼠标移出的第几行数据
+                        $(".tablebox2 tbody").find('tr').on('mouseleave',function(){
+                            var hang = $(this).prevAll().length;
+                             $(".tablebox2 tbody tr").eq(hang).removeClass('highTr');
+                            chart.dispatchAction({ type: 'showTip', seriesIndex: 0, name:data.data[hang][0]});
+                            //取消高亮
+                        })
+                        chart.on('mouseOver', function(params){
+                            console.log(params);//此处写点击事件内容
+                            for(var i=0;i<data.data.length;i++){
+                                // data11[i].value="0";
+                                if(params.name== data.data[i][0]){
+                                    console.log(params.name);
+                                    //addressList[i].value="1";
+                                    // 选中高亮
+                                    $(".tablebox2 tbody tr").eq(i).addClass('highTr');
+                                }
+                            }
+                        });
+                        //  移出该区域时，取消高亮
+                        chart.on('mouseOut', function(params){
+                            console.log(params);//此处写点击事件内容
+                            for(var i=0;i<data.data.length;i++){
+                                // data11[i].value="0";
+                                if(params.name== data.data[i][0]){
+                                    console.log(params.name);
+                                    //取消高亮
+                                    $(".tablebox2 tbody tr").eq(i).removeClass('highTr');
+                                }
+                            }
+                        });
+                    },
+                    error: function (xhr, type, errorThrown) {
+                    }
+                })
+            var chart = echarts.init(document.getElementById('main'));
+            var option = {
+                tooltip: {},
+                series: [ {
+                    type: 'wordCloud',
+                    gridSize: 2,
+                    sizeRange: [12, 50],
+                    rotationRange: [-90, 90],
+                    shape: 'pentagon',
+                    width: 600,
+                    height: 400,
+                    drawOutOfBound: true,
+                    textStyle: {
+                        color: function () {
+                            return 'rgb(' + [
+                                Math.round(Math.random() * 160),
+                                Math.round(Math.random() * 160),
+                                Math.round(Math.random() * 160)
+                            ].join(',') + ')';
+                        }
+                    },
+                    emphasis: {
+                        textStyle: {
+                            shadowBlur: 10,
+                            shadowColor: '#333'
+                        }
+                    },
+                    data: [
+                        {
+                            name: 'Sam S Club',
+                            value: 10000,
+                        },
+                        {
+                            name: 'Macys',
+                            value: 6181
+                        },
+                        {
+                            name: 'Amy Schumer',
+                            value: 4386
+                        },
+                        {
+                            name: 'Jurassic World',
+                            value: 4055
+                        },
+                        {
+                            name: 'Charter Communications',
+                            value: 2467
+                        },
+                        {
+                            name: 'Chick Fil A',
+                            value: 2244
+                        },
+                        {
+                            name: 'Planet Fitness',
+                            value: 1898
+                        },
+                        {
+                            name: 'Pitch Perfect',
+                            value: 1484
+                        },
+                        {
+                            name: 'Express',
+                            value: 1112
+                        },
+                        {
+                            name: 'Home',
+                            value: 965
+                        },
+                        {
+                            name: 'Johnny Depp',
+                            value: 847
+                        },
+                        {
+                            name: 'Lena Dunham',
+                            value: 582
+                        },
+                        {
+                            name: 'Lewis Hamilton',
+                            value: 555
+                        },
+                        {
+                            name: 'KXAN',
+                            value: 550
+                        },
+                        {
+                            name: 'Mary Ellen Mark',
+                            value: 462
+                        },
+                        {
+                            name: 'Farrah Abraham',
+                            value: 366
+                        },
+                        {
+                            name: 'Rita Ora',
+                            value: 360
+                        },
+                        {
+                            name: 'Serena Williams',
+                            value: 282
+                        },
+                        {
+                            name: 'NCAA baseball tournament',
+                            value: 273
+                        },
+                        {
+                            name: 'Point Break',
+                            value: 265
+                        }
+                    ]
+                } ]
+            };
+            chart.setOption(option);
+            window.onresize = chart.resize;
+        </script>
+    </body>
+</html>
+<script>
+    function get_date(){
+        $.ajax({
+            url: "/word_cloud_date",
+            success: function (data) {
+                option.series[0].data=data.data;
+                chart.setOption(option);
+            },
+            error: function (xhr, type, errorThrown) {
+            }
+        })
+    }
+    function leave_out(str){
+        if(str.length>=30)
+        {
+            str=str.substring(0,30)+"..."
+        }
+        return str
+    }
+    get_date()
+</script>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link  rel="stylesheet" type="text/css" href="../static/css/paper.css" />
+</head>
+<script src="../static/js/jquery.js"></script>
+<body>
+    <div class="mainbox" align="center">
+        题目：<input type="text" value="{{ data[0] }}" id="title"/></br>
+        作者：<input type="text" value="{{ data[1] }}" id="authors"/></br>
+        来自：<input type="text" value="{{ data[2] }}" id="meet"/></br>
+        日期：<input type="text" value="{{ data[3] }}" id="yeardate"/>
+    </div>
+    <div align="center">
+        摘要：</br>
+        <p>
+            <textarea rows="25" cols="80" id="abstract">
+                {{ data[4] }}
+            </textarea>
+        </p>
+        </br>
+        关键词：<input type="text" value="{{ data[5] }}" id="keyword"/>
+    </div>
+    </div>
+    <div align="center">
+        <button id="submit">完成</button>
+    </div>
+    <script>
+        var btn_submit=document.getElementById("submit");
+        btn_submit.onclick=function(){
+            var title=document.getElementById("title").value
+            var authors=document.getElementById("authors").value
+            var meet=document.getElementById("meet").value
+            var yeardate=document.getElementById("yeardate").value
+            var abstract=document.getElementById("abstract").value
+            var keyword=document.getElementById("keyword").value
+             $.ajax({
+                 url: "/update_paper_submit",
+                 data:{
+                     title:title,
+                     authors:authors,
+                     meet:meet,
+                     yeardate:yeardate,
+                     abstract:abstract,
+                     keyword:keyword
+                 },
+                success: function (data) {
+                     if(data.data==1){
+                         alert("操作成功！")
+                     }
+                     if(data.data==0){
+                         alert("操作失败！")
+                     }
+                },
+                error: function (xhr, type, errorThrown) {
+                }
+            })
+        }
+    </script>
+</body>
+</html>

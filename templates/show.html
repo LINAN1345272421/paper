@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link  rel="stylesheet" type="text/css" href="../static/css/paper.css" />
+</head>
+<script src="../static/js/jquery.js"></script>
+
+<body>
+    <div class="mainbox">
+        <div calss="mainfind" align="center">
+            题&nbsp&nbsp&nbsp&nbsp目<input tyep="text" id="title"> <br><br> 关键词
+            <input type="text" id="mainworld" placeholder="“,”表示多关键词并连接，“|”表示多关键词或连接"> <br>
+            <br> 作&nbsp&nbsp&nbsp者
+            <input type="text" id="author"><br><br> 年&nbsp&nbsp&nbsp份
+            <select id="year" class="year">
+                <option value="2020">2020</option>
+                <option value="2019">2019</option>
+                <option value="2018">2018</option>
+                <option value="ALL">ALL</option>
+            </select> 会&nbsp&nbsp&nbsp议
+            <select id="meet" class="meet">
+                <option value="CVPR">CVPR</option>
+                <option value="ICCV">ICCV</option>
+                <option value="EVCA">ECVA</option>
+                <option value="ALL">ALL</option>
+            </select>
+            <button id="submit">提交</button>
+            <button id="submit_word">词云谱</button>
+            <button id="submit_top">TOP10</button>
+        </div>
+    </div>
+    <hr>
+    <div class="tablebox">
+        <table>
+            <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>题目</th>
+                    <th>作者</th>
+                    <th>来源</th>
+                    <th>年份</th>
+                    <th>关键词</th>
+                    <tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</body>
+<script>
+    var btn_word=document.getElementById("submit_word");
+    btn_word.onclick=function(){
+        window.open("/wordCloud",'_self')
+    }
+    var btn_top=document.getElementById("submit_top");
+    btn_top.onclick=function(){
+        window.open("/top10_show",'_self')
+    }
+    var btn=document.getElementById("submit");
+    btn.onclick=function () {
+        flag=0;
+        var pattern = new RegExp("[`~!@#$^&*()={}':;'\\[\\].<>/?~！@#￥……&*（）——{}【】‘；：”“'。，、？%]");
+        var title = document.getElementById("title").value;
+        var author = document.getElementById("author").value;
+        var mainworld = document.getElementById("mainworld").value;
+        var year = $(".year").find("option:selected").text();
+        var meet = $(".meet").find("option:selected").text();
+        if(title.match(pattern)){
+            flag=1;
+        }
+        if(author.match(pattern)){
+            flag=1;
+        }
+        if(mainworld.match(pattern)){
+            flag=1;
+        }
+        if(flag==0){
+            $.ajax({
+                url: "/query",
+                data: {
+                    title: title, author: author, mainworld: mainworld,
+                    year: year, meet: meet
+                },
+                success: function (data) {
+                    if(data.data==""){
+                        alert("暂无数据！")
+                    }
+                    $(".tablebox tbody").empty();
+                    for (var i = 0; i < data.data.length; i++) {
+                        var Day = data.data[i][0].split(' ')
+                        str=i+1+""
+                        appendHtmlBody = "<tr><td>" +
+                            str+"</td><td>" +
+                            "<a href='/paper_update?title="+data.data[i][0]+"' target='view_window'>"+leave_out(data.data[i][0]) + "</a></td><td>" +
+                            leave_out(data.data[i][1]) + "</td><td>" +
+                            data.data[i][2] + "</td><td>" +
+                            data.data[i][3] + "</td><td>" +
+                            leave_out(data.data[i][5]) + "</td></tr>"
+                        $(".tablebox tbody").append(appendHtmlBody);
+                    }
+                },
+                error: function (xhr, type, errorThrown) {
+                }
+            })
+        }else{
+            alert("有特殊字符，请重新输入！")
+        }
+    }
+    {#下拉框联动#}
+    $("#meet").on("change",function(){
+        var flag=$("#meet").find("option:selected").text();
+        if(flag=="CVPR"){
+            $("#year").empty()
+            str="<option value='2020'>2020</option>"+
+                "<option value='2019'>2019</option>"+
+                "<option value='2018'>2018</option>"+
+                "<option value='ALL'>ALL</option>"
+            $("#year").append(str)
+        }
+        if(flag=="ICCV"){
+            $("#year").empty()
+            str="<option value='2019'>2019</option>"
+            $("#year").append(str)
+        }
+        if(flag=="ECVA"){
+            $("#year").empty()
+            str="<option value='2020'>2020</option>"+
+                "<option value='2018'>2018</option>"+
+                "<option value='ALL'>ALL</option>"
+            $("#year").append(str)
+        }
+        if(flag=="ALL"){
+            $("#year").empty()
+            str="<option value='2020'>2020</option>"+
+                "<option value='2018'>2019</option>"+
+                "<option value='2018'>2018</option>"+
+                "<option value='ALL'>ALL</option>"
+            $("#year").append(str)
+        }
+    })
+
+    function leave_out(str){
+        if(str.length>=30)
+        {
+            str=str.substring(0,30)+"..."
+        }
+        return str
+    }
+</script>
+</html>
